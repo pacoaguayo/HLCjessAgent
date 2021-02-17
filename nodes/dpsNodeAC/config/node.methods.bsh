@@ -1,0 +1,337 @@
+/** -------------------------------------------------------------------------------
+ * Ph.D.Thesis    : Deposit-Number# 2012.0000.55
+ * Title (en_US)  : Applied Techniques in Deployment of Rule-Based Expert Systems
+ *                  on Distributed Architecture using Multi-Agent Paradigm.
+ * Title (es_ES)  : Tecnicas para despliegue de arquitectura distribuida en sistemas
+ *                  expertos basados en reglas empleando el paradigma multiagente.
+ * Ph.D. Student  : Francisco J Aguayo Canela 
+ * Thesis Director: Ph.D. Isaias Garcia Rodriguez 
+ * Ph.D. Program  : Intelligent Systems at Engineering Science (Cod. 212)
+ * -------------------------------------------------------------------------------- */
+
+// /////////////////////////////////////////////
+// Technique: Imports (the order is really important). 
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+
+
+
+//Special for changing GUI. (Maniac Hackers only).
+//-------------------------------------------------------
+import javax.swing.plaf.basic.BasicTabbedPaneUI.*;
+import javax.swing.plaf.basic.BasicTabbedPaneUI.FocusHandler;
+import javax.swing.plaf.metal.MetalTabbedPaneUI.TabbedPaneLayout;
+import javax.swing.JComponent.AccessibleJComponent;
+import javax.swing.JLayeredPane.*;
+import javax.swing.JComponent.*;
+import javax.swing.RepaintManager.*;
+import java.security.AccessController;
+import java.awt.event.InvocationEvent;
+import java.awt.EventQueue;
+
+import com.sun.java.swing.*;
+import com.sun.java.swing.plaf.*;
+import com.sun.java.swing.plaf.motif.*;
+import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
+import com.sun.java.swing.plaf.motif.icons.*;
+import com.sun.java.swing.plaf.motif.resources.*;
+import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
+import com.sun.java.swing.plaf.nimbus.*;
+import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
+import com.sun.java.swing.plaf.windows.*;
+import com.sun.java.swing.plaf.windows.icons.*;
+import com.sun.java.swing.plaf.windows.resources.*;
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
+//--------------------------------------------------------
+//end of special for changing GUI
+import jade.core.Agent;
+import jade.util.Logger;
+import jade.core.behaviours.*; 
+
+import jade.lang.acl.*;
+import jade.content.lang.Codec;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.basic.*;;
+import jade.domain.FIPAAgentManagement.*;;
+import jade.domain.DFGUIManagement.*;
+import jade.domain.JADEAgentManagement.*;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.proto.*;
+import jade.proto.AchieveREInitiator;
+import jade.proto.AchieveREResponder;
+import jade.proto.SubscriptionInitiator;
+import jade.proto.states.*;
+
+import jade.content.Concept;
+import jade.content.onto.basic.Action;
+import jade.content.onto.basic.Done;
+import jade.domain.FIPAException;
+import jade.domain.RequestManagementBehaviour;
+import jade.domain.FIPAAgentManagement.UnsupportedFunction;
+import jade.domain.JADEAgentManagement.ShowGui;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.security.JADESecurityException;
+
+
+import jade.core.messaging.*;;
+import jade.core.messaging.TopicManagementService;
+import jade.core.AID;
+import jade.core.behaviours.ThreadedBehaviourFactory;
+
+import jade.domain.FIPANames;
+import jade.domain.FIPAAgentManagement.*;
+
+import jade.content.AgentAction;
+import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
+
+import jade.content.lang.sl.*;
+import jade.content.lang.sl.SLCodec;
+
+import jade.lang.acl.*;
+
+import jade.content.onto.*;
+import jade.content.onto.basic.*;
+
+import jade.content.*;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
+
+import jade.content.onto.BasicOntology;
+import jade.content.onto.BeanOntology;
+import jade.content.onto.BeanOntologyException;
+import jade.content.onto.Ontology;
+import jade.content.onto.OntologyUtils;
+
+import jade.content.ContentManager;
+import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
+import jade.core.CaseInsensitiveString;
+import jade.domain.FIPANames;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.util.leap.Serializable;
+
+import bsh.Interpreter;
+import bsh.EvalError;
+
+
+import com.dpsframework.*;
+import com.dpsframework.domain.*;
+import com.dpsframework.util.*;
+import com.dpsframework.core.engines.*;
+import com.dpsframework.core.behaviour.*;
+
+
+
+import java.awt.*;
+import java.security.*;
+import java.awt.EventQueue;
+import javax.swing.text.*;
+import javax.swing.plaf.*;
+import javax.swing.text.BoxView;
+
+//import net.sf.clipsrules.jni.Router;
+//import jess.*;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.Timer;
+import java.util.Date;
+import java.lang.System.*;
+import java.util.regex.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import jade.util.leap.HashMap;
+
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
+
+
+
+import jess.*;
+import jess.xml.*;
+import jess.tools.*;
+import jess.jsr94.*;
+import jess.awt.*;
+
+
+import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.lang.NullPointerException;
+import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
+import jade.core.AID;
+import jade.core.behaviours.ThreadedBehaviourFactory;
+import jade.domain.FIPANames;
+import jade.domain.DFGUIManagement.DFAppletOntology;
+import jade.domain.FIPAAgentManagement.FIPAManagementOntology;
+import jade.domain.FIPAAgentManagement.FailureException;
+import jade.domain.JADEAgentManagement.JADEManagementOntology;
+import jade.domain.JADEAgentManagement.ShowGui;
+import jade.lang.acl.ACLMessage;
+import jade.util.Logger;
+import jade.util.leap.HashMap;
+import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.WakerBehaviour;
+
+codec          = new SLCodec();
+
+// /////////////////////////////////////////////
+// Technique: Level 0. Bootstrap instructions.
+// ============         ======================================        =======================
+// Name of Bhv.         Objective of Bhv.                             Type of Bhv.
+// ============         ======================================        =======================
+thBEps = null;  		// 00 Processing Commands inside Engine       ThreadedBehaviour (Thanks a lot to JADE Team!)
+acpb   = null;  		//  Agent Capabilities                        Waker Behvaviour (2 sec. delayed) 
+jamo   = null;  		//  JADE-Agent Management Ontology Actions    SimpleBehaviour (2 States)
+bkwm   = null;  		//  Backups of Working Memory                 Daemon  (2 states each 15 min. [900.000])
+rswm   = null;  		//  Restore requests                          OneShot (at the beginning)
+n2nr   = null;  		//  Node to Node Responder FMS                SimpleAchieveREResponder (6 States)
+e2nr   = null;  		//  Engine to Node Responder FSM              FSMBehaviour (3 States)
+e2as   = null;          //  Engine To AsynchronousShell               SimpleBehaviour
+e2aa   = null;          //  Engine To Node Analyzer Behaviour     	  SimpleBehaviour
+v2ad   = null;  		//  Visits to Agenda Activations              Daemon FSMBehaviour (2 states)
+v2bd   = null;  		//  Visits to Board-Agent                     Daemon FSMBehaviour (2 states)
+nmig   = null;  		//  Node-Agent Migration                      FSMBehaviour (On-demand)
+
+
+internalShellCLIPS  = null;
+internalRouterCLIPS = null; 
+internalShellJESS  = null;
+internalRouterJESS = null; 
+jspShEng            = new JScrollPane();
+myShell             = null;
+
+// /////////////////////////////////////////////
+// Technique: myBOBActivated JADE-HashMap
+myBOBActivated 		= new jade.util.leap.HashMap();
+nodeProp2 			= new jade.util.leap.Properties();
+
+nodeProp2.load( nodeConfigPath + PsConstants.NodePKEYS.file_name );
+
+
+
+/**
+* Record Design proposal for runLevels applied to Agent paradigm.
+* 
+* @see node.methods runlevels().
+* 
+* 	 [0] = A label to print HashMap with some order
+*	 [1] = Level where Behaviour will be loaded 
+*	 [2] = Level where Behaviour will be activated 
+*	 [3] = Behaviour reference variable name 
+*	 [4] = Group of behaviour (without use) 
+*	 [5] = Behaviour definition JAVA file name 
+*
+*  ===============   ===== = = ==== ===== ============   =================
+*           Order:     0   1 2   3    4        5         Name of behaviour
+*  ===============   ===== = = ==== ===== ============   =================
+*   myBOB.put(       "01  :0:1:cpbl:basal:bhv.cpbl.bsh",       cpbl  );	
+*
+*/
+
+///////////////////////////////////////////////
+//Technique: Collection my-Bundle-Of-Behaviour = myBOB variable 
+//       myBOB HashMap is inspired in Unix-Runlevels
+myBOB.clear();
+myBOB.put("00:0:1:jamo:Basal:bhv.jamo.bsh", jamo); 
+myBOB.put("0a:0:0:acpb:Basal:bhv.acpb.bsh", acpb); // Because goes to level 1 is not equal to retart-agent (level.6)!!
+
+myBOB.put("2b:1:3:n2nr:RE_re:bhv.n2nr.bsh", n2nr); 
+myBOB.put("2c:1:3:e2nr:RE_re:bhv.e2nr.bsh", e2nr); 
+
+myBOB.put("6a:3:5:e2as:Human:bhv.e2as.bsh", e2as); 
+myBOB.put("6b:1:3:e2aa:Robot:bhv.e2aa.bsh", e2aa);
+
+myBOB.put("8a:3:5:v2ad:Demon:bhv.v2ad.bsh", v2ad); 
+myBOB.put("8b:6:7:v2bd:Demon:bhv.v2bd.bsh", v2bd); 
+
+myBOB.put("fa:3:5:bkwm:Mngmt:bhv.bkwm.bsh", bkwm); 
+myBOB.put("fb:3:5:rswm:Mngmt:bhv.rswm.bsh", rswm); 
+
+myBOB.put("fc:0:1:nmig:Mngmt:bhv.nmig.bsh", nmig); 
+
+
+
+
+
+///////////////////////////////////////////////
+//Technique: Load myBOBActivate.
+//			  Outside of myBOB().perspective() because it is necessary init( 6 ); to reloading values.
+for( String ka : myBOB.keySet().iterator() ){
+	
+	boolean status = bhvState(
+			nodeProp2.getProperty("ps.node.behaviour-"+ ka.split(":")[3]));
+
+    String clave = ka.split(":")[3];
+    
+	myBOBActivated.put(	clave , status );
+	
+}
+
+
+///////////////////////////////////////////////
+//Technique: example about myBOB like Object-Scripted (closure) inside JAVA!
+//          It's possible to write myBOB() .perspective(); en JADE-Shell 
+myBOB() {
+	public String perspective() {
+		StringBuilder sbMyBOBOriginal = new StringBuilder();
+
+		sbMyBOBOriginal.append("\n");
+		sbMyBOBOriginal.append(" * ---------------------------------------------------------- *\n");
+		sbMyBOBOriginal.append(" * myBOB (Bundle Of Node-Agent Behaviours proposal)           *\n");
+		sbMyBOBOriginal.append(" * ---------------------------------------------------------- *\n");
+		sbMyBOBOriginal.append(" * [0] = A label to ordering                                  *\n");
+		sbMyBOBOriginal.append(" * [1] = Level when Behaviour is initialized                  *\n");
+		sbMyBOBOriginal.append(" * [2] = Level when Behaviour is activated                    *\n");
+		sbMyBOBOriginal.append(" * [3] = Behaviour's name and variable's name                 *\n");
+		sbMyBOBOriginal.append(" * [4] = A label to behaviours' group                         *\n");
+		sbMyBOBOriginal.append(" * [5] = Externalized Behaviour definition file name          *\n");
+		sbMyBOBOriginal.append(" *                                                            *\n");
+		sbMyBOBOriginal.append(" * === Level     ====   =====   ============   =====  ======= *\n");
+		sbMyBOBOriginal.append(" * [0]  [1] [2]   [3]    [4]       [5]         Object Status  *\n");
+		sbMyBOBOriginal.append(" * ID  Make Actv Bhv    Area    File name      Name   Active  *\n");
+		sbMyBOBOriginal.append(" * === ==== ==== ====== ======= ============   =====  ======= *\n");
+
+		bA = myBOB.keySet().toArray();
+
+		Arrays.sort( bA );
+		for( String bK : bA ){
+			bK += ":" + ((myBOBActivated.get( bK.split(":")[3])) ? "yes" : " -");
+			sbMyBOBOriginal.append(MessageFormat.format(" *  {0} : {1} : {2} : {3} : {4} : {5} : {3} : {6}\n",
+				bK.split(":")     ));
+		}
+		sbMyBOBOriginal.append(" * ---------------------------------------------------------- * ");
+
+		return sbMyBOBOriginal.toString();
+	}
+	return this;
+} // End of BeanShell Scripting-Object with JAVA (@see ./var/doc/dps/index.html --> BeanShell Manual).
+		
+

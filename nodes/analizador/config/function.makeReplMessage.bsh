@@ -1,0 +1,245 @@
+import jade.content.lang.Codec;
+import jade.content.lang.Codec.CodecException;
+import jade.content.lang.sl.SLCodec;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
+import jade.content.onto.basic.Done;
+import jade.core.AID;
+import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.DataStore;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.ThreadedBehaviourFactory;
+import jade.core.behaviours.TickerBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPANames;
+import jade.domain.DFGUIManagement.DFAppletOntology;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.FIPAManagementOntology;
+import jade.domain.FIPAAgentManagement.FailureException;
+import jade.domain.FIPAAgentManagement.SearchConstraints;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.JADEAgentManagement.JADEManagementOntology;
+import jade.domain.JADEAgentManagement.ShowGui;
+import jade.lang.acl.ACLMessage;
+import jade.util.Logger;
+import jade.util.leap.HashMap;
+import jade.util.leap.Iterator;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+
+import org.apache.commons.codec.binary.Base64;
+
+import bsh.EvalError;
+import bsh.Interpreter;
+
+import com.dpsframework.core.behaviour.BhConstants;
+import com.dpsframework.core.behaviour.GGCCGarbageCollector;
+import com.dpsframework.core.behaviour.H2NInitMigration;
+import com.dpsframework.core.behaviour.MIABMessageProposer;
+import com.dpsframework.core.engines.RBEngine;
+import com.dpsframework.core.engines.RBEngineCLIPS;
+import com.dpsframework.core.engines.RBEngineJESS;
+import com.dpsframework.core.engines.RBEnginePROLOG;
+import com.dpsframework.domain.ESontology;
+import com.dpsframework.domain.Migrate;
+import com.dpsframework.domain.Repl;
+import com.dpsframework.util.PsConstants;
+import com.dpsframework.util.PsServices;
+
+/**
+ * @param receiverLocalName Receiver Agent LocalName 
+ * @param commandToEval Lines of commands to evaluate.
+ * @return ACLMessage REPL Type ready to launch.
+*/
+
+
+// /////////////////////////////////////////
+// Technique: Name of ACLMessage UserProperty Field
+ PS_USER_PROPERTY_ACTION        = "psAction";
+ PS_USER_PROPERTY_SENDER        = "psSender";
+ PS_USER_PROPERTY_RECEIVER      = "psReceiver";
+ PS_USER_PROPERTY_ZIPFILENAME      = "psZIPfile";
+ PS_USER_PROPERTY_FRAMEWORKNAME     = "psFramework";  
+ codec = new SLCodec();
+
+
+
+	  
+String CAPTOR_MT 		= "messageTempate_E2NR_Catcher";
+String JAMO_MT 			= "messageTempate_JAMO";
+String N2NRESPONDER_MT 	= "messageTemplate_N2NR_Responder";
+String E2AS_MT 			= "messageTemplate_E2AS_SimpleBhv";
+String E2AA_MT 			= "messageTemplate_E2AA_SimpleBhv";
+String NMIG_MT 			= "messageTemplate_NMIG_Requester";
+String N2HR_MT 			= "messageTemplate_N2HR_Catcher";
+String H2NI_MT 			= "messageTemplate_H2NI_GetResponses";
+String GGCC_MT 			= "messageTemplate_GarbageCollector";
+
+
+
+// /////////////////////////////////////////
+// Names of keys inside DataStores applied to states
+String STATE_A_MESSAGE 			= "state_A_message";
+String STATE_B_MESSAGE 			= "state_B_message";
+String STATE_B_LAST_RESPONSE 	= "Last_Response";
+String STATE_C_MESSAGE 			= "state_C_message";
+
+
+// /////////////////////////////////////////
+// Technique: Name of ACLMessage UserProperty Field
+String PS_USER_PROPERTY_ACTION				= "psAction";
+String PS_USER_PROPERTY_SENDER				= "psSender";
+String PS_USER_PROPERTY_RECEIVER			= "psReceiver";
+String PS_USER_PROPERTY_ZIPFILENAME			= "psZIPfile";
+String PS_USER_PROPERTY_FRAMEWORKNAME 		= "psFramework";
+
+String PS_USER_PROPERTY_CONVERSATION_ID		= "psConversationID";
+String PS_USER_PROPERTY_PREDICATE			= "tbPredicate";
+
+String PS_USER_PROPERTY_HAP					= "psHap";
+String PS_USER_PROPERTY_PSSCODE				= "psSCode";
+String PS_USER_PROPERTY_PSSVALUE			= "psSValue";
+String PS_USER_PROPERTY_PSSTREV				= "psStrEv";
+String PS_USER_PROPERTY_PSOUT_VALUE			= "psOutValue";
+String PS_USER_PROPERTY_PSOUT_CLASS			= "psOutClass";
+String PS_USER_PROPERTY_PSTIME_INIT			= "psTimeInit";
+String PS_USER_PROPERTY_PSTIME_END			= "psTimeEnd";
+String PS_USER_PROPERTY_PSDATE_INIT			= "psDateInit";
+
+
+// /////////////////////////////////////////
+// Logger Text Format
+String PS_LOGGER_ENGINE_TEMPLATE            = 
+		 "          * /----------------------------------+\n"
+    +"          * |   Command Code     : {0}   \n"
+    +"          * |   Params. Value    : {1}   \n"
+    +"          * |   String to EVAL   : {2}   \n"
+	+"          * |   Output value     : {3}   \n"
+	+"          * +---Engine Shell response:--(outShell)---------\n\n"
+	+"{4}\n\n"
+	+"          * +---Engine Shell response:--(outShell)---------\n"
+	+"          * |   Init TIME  : {5}\n"
+	+"          * |   Delta TIME : {6}\n"
+	+"          * |   Init Date  : {7}\n"
+	+"          * \\----------------------------------+";
+
+// /////////////////////////////////////////
+// Technique: Name of Actions Repl and Process
+String ACTION_REPL_NAME						= "Repl";
+String ACTION_PROCESS_NAME					= "Process";
+String ACTION_PROBLEMFOR_NAME				= "ProblemFor";
+String ACTION_ADVERTISE_NAME				= "Advertise";
+
+String HOOK_CONVERSATION_TO_TICKETBOARD		= "DATA_TO_TicketBoard";
+String HOOK_CONVERSATION_TO_ASYNC			= "DATA_TO_AsynchronousShell";
+String HOOK_CONVERSATION_TO_ENGINE			= "DATA_TO_Engine";
+String HOOK_CONVERSATION_ID_TYPE_BASAL		= "Basal_Behaviour";
+String HOOK_CONVERSATION_ID_TYPE_MIGRATION	= "Basal_Migration";
+String HOOK_CONVERSTAION_ID_TYPE_AGENDA		= "Basal_Behaviour_Agenda";
+String HOOK_CONVERSTAION_ID_SHOWGUI			= "Basal_ShowGui";
+
+
+String DEFAULT_FILE_WMDUMP_NAME 		= "engineWMemoryDump.bsave";
+	
+	
+	
+	     
+  myAgent .getContentManager().registerLanguage(codec, FIPANames.ContentLanguage.FIPA_SL0);  
+  myAgent .getContentManager().registerLanguage(codec, FIPANames.ContentLanguage.FIPA_SL1);  
+  myAgent .getContentManager().registerLanguage(codec, FIPANames.ContentLanguage.FIPA_SL2);  
+  myAgent .getContentManager().registerLanguage(codec, FIPANames.ContentLanguage.FIPA_SL);  
+  myAgent .getContentManager().registerOntology(FIPAManagementOntology.getInstance());
+  myAgent .getContentManager().registerOntology(JADEManagementOntology.getInstance());
+  myAgent .getContentManager().registerOntology(DFAppletOntology.getInstance());
+  myAgent .getContentManager().registerOntology(ESontology.getInstance());  
+  
+  codec          = new SLCodec(); 
+
+
+
+  
+/** 
+ * Make an ACLMessage to Remote Engine (Jess, CLIPS, etc.).
+ * <p>
+ * 
+ * @see analizador.bsh
+ * 
+ * @author Ph.D.: Aguayo-Canela, FJ et al. (2019)
+ * <p>
+ * <small>Department of Electric Engineering, Systems and Automatic<br>
+ *         School of Industrial Engineering and Information Technology<br>
+ *         &copy; <b>University of Leon</b> - Spain. <a
+ *         href="http://www.unileon.es">{http://www.unileon.es}</a>
+ */
+public ACLMessage makeReplMessage(String receiverLocalName, StringBuilder commandToEval) {    
+ 
+    AID     sender       = myAgent. getAID();
+    AID     receiver     = new AID(receiverLocalName, AID.ISLOCALNAME);
+    ACLMessage   msg     = new ACLMessage(ACLMessage.REQUEST);
+    Repl     theREPL     = new Repl();
+      
+    
+    theREPL .setContent (    "@seeEnvelope_Comments"  );             // By convention
+    theREPL .setLanguage(   "JESS"  );
+    
+    
+    
+    Base64 base64 = new Base64();
+    String encodedVersion = new String(base64.encode(commandToEval.toString().getBytes()));
+    
+    
+    theREPL .setCompiler( "JESS" );
+    theREPL .setSentence( encodedVersion );
+    theREPL .setResults( "waiting...");
+    theREPL .setResultType( "String" );
+    
+    
+    Action action       = new Action( receiver , theREPL );
+     
+    msg.setSender(sender);
+    msg.addReceiver(receiver);
+    
+    msg.setEncoding( FIPANames.ACLCodec.STRING);
+    msg.setLanguage( FIPANames.ContentLanguage.FIPA_SL);
+    msg.setOntology( ESontology.NAME );
+    msg.setProtocol( FIPANames.InteractionProtocol.FIPA_REQUEST);
+  
+      try {
+        myAgent .getContentManager() .fillContent( msg, action );
+    } catch ( OntologyException e) {
+      e.printStackTrace();
+      System.out.println("Error in Repl msg construction: " + msg.toString());
+      return msg;
+    }
+  
+    msg.setDefaultEnvelope();
+    msg.getEnvelope().setComments( commandToEval.toString() );
+    msg.addUserDefinedParameter(PS_USER_PROPERTY_ACTION   , "Repl"                );
+    msg.addUserDefinedParameter(PS_USER_PROPERTY_SENDER   , sender.getLocalName()   );
+    msg.addUserDefinedParameter(PS_USER_PROPERTY_RECEIVER , receiver.getLocalName() );
+    return msg;
+  }  
+  
+  public ACLMessage makeReplMessage(String receiverLocalName, String commandToEval) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(commandToEval);
+    return makeReplMessage(receiverLocalName, sb);
+  }
+
+  public ACLMessage makeReplMessage(String commandToEval) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(commandToEval);
+    String receiver = getLocalName();
+    return makeReplMessage(receiver, sb);
+  }
+  
+  public ACLMessage makeReplMessage() {
+    return makeReplMessage(myNode.nodeName, "(facts)");
+  }  
+  

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jessAgent" default="help"  basedir=".">
+
+
+
+  <property environment="env" />
+  <taskdef resource="net/sf/antcontrib/antlib.xml" />
+  
+  
+
+  <target name="init">
+    
+    <property name = "debug"         value = "off"/> 
+    <property name = "verbose"       value = "${debug}"/> 
+   
+    <property name = "lib"           value = "lib"/>    
+    <property name = "src"           value = "src"/>
+    <property name = "build"         value = "build"/>
+    <property name = "pkg"           value = "examples/jess"/> 
+    <property name = "name"          value = "jessAgent"/> 
+    <property name = "tag"           value = "8.1"/> 
+    <property name = "jessAgentRepo" value = "nodes/jessAgents" />
+    
+    <tstamp>
+      <format property='build.time' pattern='yyyy-MM-dd HH:mm:ss' />
+    </tstamp>
+  </target>
+
+
+
+  <target name="help" depends="init">
+    <echo>  compile : Generates classes of jessAgent.</echo>
+    <echo>  dist    : Packages ${name}.jar on ./lib/</echo>
+    <echo>  test    : Tests this file. </echo>
+  </target>
+
+
+
+  <target name="test"  depends="init"   description="Ant vars. at Run-time">
+    <echo message = "Time         : ${build.time}" />
+    <echo message = "basedir      : ${basedir}"    />    
+    <echo message = "lib          : ${lib}"        />    
+    <echo message = "src          : ${src}"        />
+    <echo message = "build        : ${build}"      />
+    <echo message = "pkg          : ${pkg}"        /> 
+    <echo message = "name         : ${name}"       />    
+    <echo message = "tag          : ${tag}"        />    
+    <echo message = "JAR file     : ${name}-${tag}.jar" />    
+  </target>
+
+
+
+
+  <target name="compile" depends="init">
+    <echo message="---- Compiling Java Clases   ------" />
+    
+    <mkdir dir="${build}" />
+    <copy todir="${build}" includeEmptyDirs="true" preservelastmodified="true">
+      <fileset dir="${basedir}/${src}" />
+    </copy>
+  	
+    <delete dir="${basedir}/${build}" includes="**/*.class"/>
+    <delete dir="${basedir}/${build}" includes="**/*.clp"/>
+   
+    <mkdir dir="${jessAgentRepo}"  />  
+    <copy  file="${basedir}/${src}/${pkg}/JadeAgent.clp" todir="${jessAgentRepo}" preservelastmodified="true" />
+
+    <javac  srcdir="${build}" 
+            destdir="${build}" 
+            optimize="on" 
+            compiler="modern" 
+            source="1.7" 
+            target="1.8" 
+            debug="${debug}" 
+            verbose="${verbose}" 
+            includeantruntime="false">
+            <!-- <compilerarg value="-Xlint"/> -->
+            <classpath>
+              <fileset dir="${lib}" includes="*.jar" excludes="${name}-${tag}" />
+              <fileset dir="${build}" includes="*.class" />
+            </classpath>
+    </javac>
+    <delete dir="${basedir}/${build}" includes="**/*.java"/>
+
+  </target>
+
+
+
+
+ 
+  <target name="dist" depends="init">
+    <echo message="----  Making ${name}-${tag}.jar ------"/>
+    <antcall target="compile"/>
+    <antcall target="dist.jessAgent.library"/>
+  </target>
+
+	  
+  
+  
+  
+  <target name="dist.jessAgent.library">
+    <delete file="${basedir}/${lib}/${name}-${tag}.jar"/>
+
+    <jar jarfile="${basedir}/${lib}/${name}-${tag}.jar">
+      <fileset dir="${build}" excludes="**/*.java" />
+
+      <manifest>
+        <attribute name="Permissions"             value="public" />
+        <attribute name="Codebase"                value="examples.jess" />
+        <attribute name="License"                 value="GNU-GPL3 Licensed" />
+        <attribute name="Built-By"                value="${user.name}" />
+        <attribute name="Implementation-Vendor"   value="Aguayo FJ." />
+        <attribute name="Implementation-Title"    value="JessAgent Analysis Comparative Library" />
+        <attribute name="Implementation-Version"  value="${tag}.a" />
+        <attribute name="Main-Class" 	          value="JessAgent" />
+        </manifest>
+    </jar>
+  </target>
+
+
+	
+	
+	
+	
+	
+	
+	
+
+</project>

@@ -1,0 +1,14 @@
+// //////////////////////////////////////
+// Java Classes:
+// import com.dpsframework.core.behaviour.BKWMFSMBehaviour;
+import examples.jess.PingListenerBehaviour;
+
+// Example of: 
+// bkwm = new FSMBackupWorkingMemory( myAgent  ); // Without second parameter, by default = 15 minutes
+// bkwm 	= new BKWMFSMBehaviour( myAgent, 60L ); 
+  
+bkwm      = new PingListenerBehaviour( myAgent );
+
+bkwm 	.setBehaviourName( "bkwm");
+return (PingListenerBehaviour) bkwm;
+
